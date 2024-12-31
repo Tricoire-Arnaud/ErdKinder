@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-full hover:bg-accent transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-primary px-4 py-2 rounded-full hover:bg-secondary transition-colors;
+  }
+
+  .task-card {
+    @apply bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow mb-3 cursor-grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .task-card:active {
+    cursor: grabbing;
+  }
+
+  .task-card.sortable-ghost {
+    opacity: 0.4;
+  }
+
+  .task-card.sortable-drag {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .task-list {
+    @apply p-4 flex-1 overflow-y-auto;
+    min-height: 100px;
+  }
+}
+
+/* Styles pour le drag & drop */
+.sortable-ghost {
+  @apply opacity-50 bg-gray-100;
+}
+
+.sortable-drag {
+  @apply cursor-grabbing;
+} 

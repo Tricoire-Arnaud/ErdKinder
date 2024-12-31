@@ -1,0 +1,52 @@
+<header class="bg-white shadow-md">
+    <nav class="container mx-auto px-4 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="/img/logo.png" alt="logo" class="h-8">
+                <span class="text-xl font-semibold text-primary">La Maison des Enfants</span>
+            </div>
+            
+            <ul class="flex items-center space-x-6">
+                <li>
+                    <a href="/" 
+                       class="<%= locals.currentPage === 'home' ? 'text-primary' : 'text-text hover:text-primary' %> transition-colors">
+                        Accueil
+                    </a>
+                </li>
+                <li>
+                    <a href="/actualites" 
+                       class="<%= locals.currentPage === 'actualites' ? 'text-primary' : 'text-text hover:text-primary' %> transition-colors">
+                        Actualités
+                    </a>
+                </li>
+                <li>
+                    <a href="/avancement" 
+                       class="<%= locals.currentPage === 'avancement' ? 'text-primary' : 'text-text hover:text-primary' %> transition-colors">
+                        Avancement
+                    </a>
+                </li>
+                <% if (locals.user) { %>
+                    <li>
+                        <a href="/dashboard" 
+                           class="<%= locals.currentPage === 'dashboard' ? 'text-primary' : 'text-text hover:text-primary' %> transition-colors">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/auth/logout" 
+                           class="bg-accent text-white px-4 py-2 rounded-full hover:bg-primary transition-colors">
+                            Déconnexion
+                        </a>
+                    </li>
+                <% } else { %>
+                    <li>
+                        <a href="/auth/login" 
+                           class="bg-primary text-white px-4 py-2 rounded-full hover:bg-accent transition-colors">
+                            Connexion
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </div>
+    </nav>
+</header> 

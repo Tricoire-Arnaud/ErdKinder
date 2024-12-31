@@ -1,0 +1,103 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-secondary">
+    <div class="flex">
+        <%- include('../../partials/dashboard-sidebar') %>
+
+        <main class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-text">Vue globale des tâches</h1>
+            </header>
+
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- À faire -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span>
+                            À faire
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto" data-status="todo">
+                        <% tasks.filter(t => t.status === 'todo').forEach(task => { %>
+                            <%- include('../../partials/task-card-readonly', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- En cours -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
+                            En cours
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto" data-status="in_progress">
+                        <% tasks.filter(t => t.status === 'in_progress').forEach(task => { %>
+                            <%- include('../../partials/task-card-readonly', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- Terminé -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                            Terminé
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto" data-status="done">
+                        <% tasks.filter(t => t.status === 'done').forEach(task => { %>
+                            <%- include('../../partials/task-card-readonly', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- contentFor('extraScripts') %>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+socket.on('taskUpdated', (data) => {
+    console.log('Tâche mise à jour reçue:', data);
+    
+    // Trouver l'élément de la tâche
+    const taskElement = document.querySelector(`[data-task-id="${data.task.id}"]`);
+    if (!taskElement) {
+        console.log('Élément de tâche non trouvé, rechargement de la page...');
+        window.location.reload();
+        return;
+    }
+
+    // Trouver les conteneurs de statut
+    const oldStatusContainer = document.querySelector(`[data-status="${data.oldStatus}"]`);
+    const newStatusContainer = document.querySelector(`[data-status="${data.newStatus}"]`);
+
+    if (!oldStatusContainer || !newStatusContainer) {
+        console.log('Conteneurs de statut non trouvés:', {
+            oldStatus: data.oldStatus,
+            newStatus: data.newStatus,
+            oldContainer: !!oldStatusContainer,
+            newContainer: !!newStatusContainer
+        });
+        window.location.reload();
+        return;
+    }
+
+    try {
+        // Déplacer la tâche vers le nouveau conteneur
+        newStatusContainer.appendChild(taskElement);
+        console.log('Tâche déplacée avec succès');
+    } catch (error) {
+        console.error('Erreur lors du déplacement de la tâche:', error);
+        window.location.reload();
+    }
+});
+</script> 

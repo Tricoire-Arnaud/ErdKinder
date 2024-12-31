@@ -1,0 +1,183 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-secondary">
+    <div class="flex">
+        <%- include('../../partials/dashboard-sidebar') %>
+
+        <main class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-text">
+                    <%= article ? 'Modifier l\'article' : 'Nouvel article' %>
+                </h1>
+                <a href="/dashboard/articles" 
+                   class="text-primary hover:text-accent">
+                    Retour à la liste
+                </a>
+            </header>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <form action="<%= article ? `/dashboard/articles/${article.id}` : '/dashboard/articles' %>" 
+                      method="POST" 
+                      enctype="multipart/form-data"
+                      class="space-y-6"
+                      id="articleForm">
+                    
+                    <% if (article) { %>
+                        <input type="hidden" name="articleId" value="<%= article.id %>">
+                    <% } %>
+
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+                            Titre
+                        </label>
+                        <input type="text" 
+                               id="title" 
+                               name="title" 
+                               value="<%= article ? article.title : '' %>"
+                               required
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
+                    </div>
+
+                    <div>
+                        <label for="authorId" class="block text-sm font-medium text-gray-700 mb-1">
+                            Auteur
+                        </label>
+                        <select id="authorId" 
+                                name="authorId" 
+                                class="w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary sm:text-sm">
+                            <% users.forEach(function(user) { %>
+                                <option value="<%= user.id %>" 
+                                        <%= (article && article.authorId === user.id) || (!article && user.id === currentUser.id) ? 'selected' : '' %>>
+                                    <%= user.name %> (<%= user.email %>)
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-1">
+                            Contenu
+                        </label>
+                        <textarea id="content" 
+                                 name="content" 
+                                 rows="10"
+                                 class="w-full rounded-lg border-gray-300 focus:ring-primary focus:border-primary sm:text-sm"><%= article ? article.content : '' %></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   id="published" 
+                                   name="published"
+                                   <%= article && article.published ? 'checked' : '' %>
+                                   class="rounded border-gray-300 text-primary focus:ring-primary">
+                            <label for="published" class="ml-2 text-sm text-gray-700">
+                                Publier l'article
+                            </label>
+                        </div>
+                        
+                        <% if (article) { %>
+                            <div class="text-sm text-gray-500">
+                                <% if (article.publishedAt) { %>
+                                    <p>Publié le <%= new Date(article.publishedAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+                                <% } %>
+                                <p>Dernière modification le <%= new Date(article.updatedAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" 
+                                onclick="window.location.href='/dashboard/articles'"
+                                class="px-4 py-2 bg-gray-200 text-text rounded-lg hover:bg-gray-300">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent">
+                            <%= article ? 'Mettre à jour' : 'Créer' %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- TinyMCE -->
+<script src="https://cdn.tiny.cloud/1/<%= tinymceApiKey %>/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#content',
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        language: 'fr_FR',
+        height: 500,
+        images_upload_url: '/dashboard/articles/upload-image',
+        images_upload_handler: function (blobInfo, progress) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                fetch('/dashboard/articles/upload-image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.location) {
+                        resolve(result.location);
+                    } else {
+                        reject({ message: 'Erreur lors de l\'upload de l\'image' });
+                    }
+                })
+                .catch(error => {
+                    reject({ message: 'Erreur lors de l\'upload: ' + error });
+                });
+            });
+        },
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        images_reuse_filename: true,
+        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 16px; }'
+    });
+</script>
+
+<script>
+document.getElementById('articleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Récupérer le contenu de TinyMCE avant la soumission
+    const content = tinymce.get('content').getContent();
+    
+    const formData = new FormData(e.target);
+    const articleId = formData.get('articleId');
+    const method = articleId ? 'PUT' : 'POST';
+    const url = articleId ? `/dashboard/articles/${articleId}` : '/dashboard/articles';
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: formData.get('title'),
+                content: content,
+                published: formData.get('published') === 'on',
+                authorId: formData.get('authorId')
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            window.location.href = '/dashboard/articles';
+        } else {
+            alert(result.message || 'Une erreur est survenue');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la soumission du formulaire');
+    }
+});
+</script>

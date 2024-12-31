@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Tâches - ErdKinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="/styles/style.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="top-nav">
+            <div class="nav-brand">
+                <img src="/images/logo.svg" alt="Logo La Maison des Enfants" class="logo">
+                <span>La Maison des Enfants</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Accueil</a></li>
+                <li><a href="/actualites">Actualités</a></li>
+                <li><a href="/tasks" class="active">Tâches</a></li>
+                <li><a href="/auth/logout" class="btn-login">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Gestion des Tâches</h1>
+                <p class="subtitle">Organisation collaborative du projet ErdKinder</p>
+            </div>
+        </section>
+
+        <section class="tasks-board">
+            <div class="board-controls">
+                <button class="btn-primary add-task">+ Nouvelle tâche</button>
+            </div>
+            
+            <div class="task-columns">
+                <div class="task-column">
+                    <h2>À faire</h2>
+                    <div class="tasks">
+                        <% tasks.filter(task => task.status === 'à_faire').forEach(task => { %>
+                            <div class="task-card" data-id="<%= task.id %>">
+                                <h3><%= task.title %></h3>
+                                <p><%= task.description %></p>
+                                <div class="task-meta">
+                                    <% if (task.assignedTo) { %>
+                                        <span class="assigned-to">Assigné à: <%= task.assignedTo %></span>
+                                    <% } %>
+                                    <div class="task-actions">
+                                        <button class="btn-edit">Modifier</button>
+                                        <button class="btn-move">Déplacer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="task-column">
+                    <h2>En cours</h2>
+                    <div class="tasks">
+                        <% tasks.filter(task => task.status === 'en_cours').forEach(task => { %>
+                            <div class="task-card" data-id="<%= task.id %>">
+                                <h3><%= task.title %></h3>
+                                <p><%= task.description %></p>
+                                <div class="task-meta">
+                                    <% if (task.assignedTo) { %>
+                                        <span class="assigned-to">Assigné à: <%= task.assignedTo %></span>
+                                    <% } %>
+                                    <div class="task-actions">
+                                        <button class="btn-edit">Modifier</button>
+                                        <button class="btn-move">Déplacer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <div class="task-column">
+                    <h2>Terminé</h2>
+                    <div class="tasks">
+                        <% tasks.filter(task => task.status === 'terminé').forEach(task => { %>
+                            <div class="task-card" data-id="<%= task.id %>">
+                                <h3><%= task.title %></h3>
+                                <p><%= task.description %></p>
+                                <div class="task-meta">
+                                    <% if (task.assignedTo) { %>
+                                        <span class="assigned-to">Assigné à: <%= task.assignedTo %></span>
+                                    <% } %>
+                                    <div class="task-actions">
+                                        <button class="btn-edit">Modifier</button>
+                                        <button class="btn-archive">Archiver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>La Maison des Enfants</h4>
+                <p>Association Montessori engagée dans l'éducation alternative</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Email: contact@maisondesenfants.fr</p>
+                <p>Téléphone: 01 23 45 67 89</p>
+            </div>
+            <div class="footer-section">
+                <h4>Liens utiles</h4>
+                <ul>
+                    <li><a href="/mentions-legales">Mentions légales</a></li>
+                    <li><a href="/confidentialite">Politique de confidentialité</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 La Maison des Enfants - Tous droits réservés</p>
+        </div>
+    </footer>
+</body>
+</html>

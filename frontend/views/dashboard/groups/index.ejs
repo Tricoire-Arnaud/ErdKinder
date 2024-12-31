@@ -1,0 +1,294 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-secondary">
+    <div class="flex">
+        <%- include('../../partials/dashboard-sidebar') %>
+
+        <main class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-text">Gestion des Groupes</h1>
+                <% if (user.role === 'admin') { %>
+                    <button onclick="openNewGroupModal()" 
+                            class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                        <i class="fas fa-plus mr-2"></i>
+                        Nouveau groupe
+                    </button>
+                <% } %>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% groups.forEach(group => { %>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-xl font-semibold text-text"><%= group.name %></h2>
+                            <% if (user.role === 'admin') { %>
+                                <div class="flex gap-2">
+                                    <button onclick="editGroup('<%= group.id %>')"
+                                            class="text-primary hover:text-accent">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteGroup('<%= group.id %>')"
+                                            class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-4"><%= group.description %></p>
+                        
+                        <div class="mb-4">
+                            <h3 class="font-medium text-text mb-2">Membres</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <% group.members.forEach(member => { %>
+                                    <span class="inline-flex items-center px-2 py-1 bg-gray-100 rounded-full text-sm">
+                                        <%= member.name %>
+                                        <% if (user.role === 'admin') { %>
+                                            <button onclick="removeMember('<%= group.id %>', '<%= member.id %>')"
+                                                    class="ml-2 text-red-600 hover:text-red-800">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        <% } %>
+                                    </span>
+                                <% }) %>
+                                <% if (user.role === 'admin') { %>
+                                    <button onclick="openAddMemberModal('<%= group.id %>')"
+                                            class="inline-flex items-center px-2 py-1 text-primary hover:text-accent">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        Ajouter
+                                    </button>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <a href="/dashboard/groups/<%= group.id %>/tasks" 
+                           class="inline-block w-full text-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                            Voir les tâches
+                        </a>
+                    </div>
+                <% }) %>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal pour éditer/créer un groupe -->
+<div id="groupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-text" id="modalTitle">Nouveau groupe</h2>
+            <button onclick="closeGroupModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="groupForm" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nom
+                </label>
+                <input type="text" id="name" name="name" required
+                       class="w-full rounded-lg border-gray-300 focus:ring-primary focus:border-primary">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                </label>
+                <textarea id="description" name="description" rows="3"
+                          class="w-full rounded-lg border-gray-300 focus:ring-primary focus:border-primary"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-4 mt-6">
+                <button type="button" onclick="closeGroupModal()"
+                        class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal pour ajouter un membre -->
+<div id="memberModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <h2 class="text-xl font-bold mb-4">Ajouter un membre</h2>
+        <form id="memberForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-text mb-1">Utilisateur</label>
+                <select name="userId" required
+                        class="w-full rounded-lg border-gray-300 focus:ring-primary focus:border-primary">
+                    <option value="">Sélectionner un utilisateur</option>
+                    <% users.forEach(user => { %>
+                        <option value="<%= user.id %>"><%= user.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeMemberModal()"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                    Annuler
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                    Ajouter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- contentFor('extraScripts') %>
+<script>
+let currentGroupId = null;
+
+// Fonctions pour gérer les modals
+function openNewGroupModal() {
+    currentGroupId = null;
+    document.getElementById('modalTitle').textContent = 'Nouveau groupe';
+    document.getElementById('groupForm').reset();
+    document.getElementById('groupModal').classList.remove('hidden');
+    document.getElementById('groupModal').classList.add('flex');
+}
+
+function closeGroupModal() {
+    document.getElementById('groupModal').classList.add('hidden');
+    document.getElementById('groupModal').classList.remove('flex');
+}
+
+function openAddMemberModal(groupId) {
+    currentGroupId = groupId;
+    document.getElementById('memberModal').classList.remove('hidden');
+}
+
+function closeMemberModal() {
+    document.getElementById('memberModal').classList.add('hidden');
+}
+
+// Fonction pour éditer un groupe
+function editGroup(groupId) {
+    currentGroupId = groupId;
+    fetch(`/dashboard/groups/${groupId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur lors de la récupération du groupe');
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) throw new Error(data.message);
+            
+            const group = data.group;
+            
+            // Remplir le formulaire avec les données du groupe
+            document.getElementById('name').value = group.name;
+            document.getElementById('description').value = group.description || '';
+            
+            // Mettre à jour le titre du modal
+            document.getElementById('modalTitle').textContent = 'Modifier le groupe';
+            
+            // Ouvrir le modal
+            document.getElementById('groupModal').classList.remove('hidden');
+            document.getElementById('groupModal').classList.add('flex');
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert(error.message || 'Erreur lors de la récupération du groupe');
+        });
+}
+
+// Gestionnaire de soumission du formulaire de groupe
+document.getElementById('groupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const method = currentGroupId ? 'PUT' : 'POST';
+    const url = currentGroupId ? `/dashboard/groups/${currentGroupId}` : '/dashboard/groups';
+    
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: formData.get('name'),
+                description: formData.get('description')
+            })
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Une erreur est survenue');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'enregistrement du groupe');
+    }
+});
+
+// Gestionnaire de soumission du formulaire de membre
+document.getElementById('memberForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch(`/dashboard/groups/${currentGroupId}/members`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: formData.get('userId')
+            })
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+});
+
+// Fonction pour supprimer un groupe
+function deleteGroup(groupId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?')) {
+        fetch(`/dashboard/groups/${groupId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert(data.message || 'Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression du groupe');
+        });
+    }
+}
+
+// Fonction pour supprimer un membre
+async function removeMember(groupId, userId) {
+    if (confirm('Êtes-vous sûr de vouloir retirer ce membre ?')) {
+        try {
+            const response = await fetch(`/dashboard/groups/${groupId}/members/${userId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+}
+</script> 

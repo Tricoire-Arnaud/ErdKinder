@@ -1,0 +1,275 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-secondary">
+    <div class="flex">
+        <%- include('../../partials/dashboard-sidebar') %>
+
+        <main class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-text"><%= group.name %></h1>
+                    <p class="text-gray-600">Tableau des tâches</p>
+                </div>
+                <button onclick="openTaskModal()" 
+                        class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                    <i class="fas fa-plus mr-2"></i>
+                    Nouvelle tâche
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- À faire -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></span>
+                            À faire
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto task-list" data-status="todo">
+                        <% tasks.filter(t => t.status === 'todo').forEach(task => { %>
+                            <%- include('../../partials/task-card', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- En cours -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
+                            En cours
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto task-list" data-status="in_progress">
+                        <% tasks.filter(t => t.status === 'in_progress').forEach(task => { %>
+                            <%- include('../../partials/task-card', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- Terminé -->
+                <div class="bg-white rounded-lg shadow-lg flex flex-col h-[calc(100vh-12rem)]">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h2 class="text-lg font-semibold text-text flex items-center">
+                            <span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                            Terminé
+                        </h2>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto task-list" data-status="done">
+                        <% tasks.filter(t => t.status === 'done').forEach(task => { %>
+                            <%- include('../../partials/task-card', { task }) %>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../../partials/task-modal') %>
+
+<%- contentFor('extraScripts') %>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const taskLists = document.querySelectorAll('.task-list');
+    
+    taskLists.forEach(list => {
+        new Sortable(list, {
+            group: 'tasks',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: async function(evt) {
+                const taskId = evt.item.dataset.taskId;
+                const newStatus = evt.to.dataset.status;
+                const oldStatus = evt.from.dataset.status;
+                
+                if (newStatus === oldStatus) return;
+
+                try {
+                    const response = await fetch(`/dashboard/tasks/${taskId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            status: newStatus,
+                            groupId: '<%= group.id %>'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        // En cas d'erreur, remettre la carte à sa position initiale
+                        evt.from.appendChild(evt.item);
+                        alert('Erreur lors de la mise à jour du statut');
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    evt.from.appendChild(evt.item);
+                    alert('Erreur lors de la mise à jour du statut');
+                }
+            }
+        });
+    });
+});
+
+// Un seul gestionnaire d'événements pour le formulaire
+const taskForm = document.getElementById('taskForm');
+taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const taskId = e.target.dataset.taskId;
+    const method = taskId ? 'PUT' : 'POST';
+    const url = taskId ? `/dashboard/tasks/${taskId}` : `/dashboard/tasks`;
+    
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: formData.get('title'),
+                description: formData.get('description'),
+                priority: formData.get('priority'),
+                assignedToId: formData.get('assignedToId'),
+                dueDate: formData.get('dueDate'),
+                groupId: '<%= group.id %>'
+            })
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Une erreur est survenue');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'enregistrement de la tâche');
+    }
+});
+
+// Fonctions pour le modal
+function openTaskModal() {
+    document.getElementById('taskForm').reset();
+    document.getElementById('taskForm').dataset.taskId = '';
+    document.getElementById('modalTitle').textContent = 'Nouvelle tâche';
+    document.getElementById('taskModal').classList.remove('hidden');
+    document.getElementById('taskModal').classList.add('flex');
+}
+
+function closeTaskModal() {
+    document.getElementById('taskModal').classList.add('hidden');
+    document.getElementById('taskModal').classList.remove('flex');
+}
+
+function editTask(taskId) {
+    console.log('Édition de la tâche:', taskId);
+    
+    fetch(`/dashboard/tasks/${taskId}`)
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération de la tâche');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            
+            const task = data.task;
+            console.log('Données de la tâche reçues:', task);
+
+            // Ouvrir le modal d'abord
+            openTaskModal();
+
+            // Attendre un peu que le modal soit ouvert
+            setTimeout(() => {
+                try {
+                    console.log('Remplissage du formulaire...');
+                    
+                    // Récupérer les éléments du formulaire
+                    const titleInput = document.getElementById('title');
+                    const descriptionInput = document.getElementById('description');
+                    const prioritySelect = document.getElementById('priority');
+                    const assignedToSelect = document.getElementById('assignedToId');
+                    const dueDateInput = document.getElementById('dueDate');
+                    const form = document.getElementById('taskForm');
+                    
+                    console.log('Éléments du formulaire:', {
+                        titleInput,
+                        descriptionInput,
+                        prioritySelect,
+                        assignedToSelect,
+                        dueDateInput,
+                        form
+                    });
+
+                    // Remplir le formulaire avec les données de la tâche
+                    if (titleInput) titleInput.value = task.title || '';
+                    if (descriptionInput) descriptionInput.value = task.description || '';
+                    if (prioritySelect) prioritySelect.value = task.priority || 'medium';
+                    if (assignedToSelect) assignedToSelect.value = task.assigned_to_id || '';
+                    
+                    // Formater la date pour l'input date
+                    if (dueDateInput && task.due_date) {
+                        const date = new Date(task.due_date);
+                        const formattedDate = date.toISOString().split('T')[0];
+                        dueDateInput.value = formattedDate;
+                    } else if (dueDateInput) {
+                        dueDateInput.value = '';
+                    }
+                    
+                    // Mettre à jour le formulaire pour la mise à jour
+                    if (form) {
+                        form.dataset.taskId = task.id;
+                        const modalTitle = document.getElementById('modalTitle');
+                        if (modalTitle) modalTitle.textContent = 'Modifier la tâche';
+                    }
+                    
+                    console.log('Formulaire rempli avec succès');
+                } catch (error) {
+                    console.error('Erreur lors du remplissage du formulaire:', error);
+                }
+            }, 100);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert(error.message || 'Erreur lors de la récupération de la tâche');
+        });
+}
+
+function deleteTask(taskId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+        console.log('Tentative de suppression de la tâche:', taskId);
+        
+        fetch(`/dashboard/tasks/${taskId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(async response => {
+            console.log('Réponse reçue:', response.status);
+            const data = await response.json();
+            console.log('Données reçues:', data);
+            
+            if (response.ok) {
+                console.log('Suppression réussie, rechargement de la page...');
+                window.location.reload();
+            } else {
+                console.error('Erreur lors de la suppression:', data.message);
+                alert(data.message || 'Erreur lors de la suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la suppression:', error);
+            alert('Erreur lors de la suppression de la tâche');
+        });
+    }
+}
+</script> 

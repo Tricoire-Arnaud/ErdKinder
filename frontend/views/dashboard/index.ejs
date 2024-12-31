@@ -1,0 +1,138 @@
+<%- contentFor('body') %>
+
+<div class="min-h-screen bg-secondary">
+    <div class="flex">
+        <%- include('../partials/dashboard-sidebar') %>
+
+        <main class="flex-1 p-8">
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-text">Tableau de bord</h1>
+                <div class="flex items-center gap-4">
+                    <span class="text-text"><%= user.name %></span>
+                    <a href="/auth/logout" class="text-accent hover:text-primary transition-colors">
+                        Déconnexion
+                    </a>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-text">Articles</h3>
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                            <i class="fas fa-newspaper text-primary"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-text"><%= stats.articlesCount %></p>
+                    <p class="text-sm text-gray-500">Articles publiés</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-text">Tâches</h3>
+                        <div class="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                            <i class="fas fa-tasks text-accent"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-text"><%= stats.tasksCount %></p>
+                    <p class="text-sm text-gray-500">Tâches en cours</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-text">Utilisateurs</h3>
+                        <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-primary"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-text"><%= stats.usersCount %></p>
+                    <p class="text-sm text-gray-500">Utilisateurs actifs</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Articles récents -->
+                <section class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-text">Articles récents</h2>
+                        <a href="/dashboard/articles" class="text-primary hover:text-accent transition-colors">
+                            Voir tout →
+                        </a>
+                    </div>
+                    <div class="space-y-4">
+                        <% recentArticles.forEach(article => { %>
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                                <div>
+                                    <h3 class="font-medium text-text"><%= article.title %></h3>
+                                    <p class="text-sm text-gray-500">
+                                        Par <%= article.author ? article.author.name : 'Anonyme' %>
+                                    </p>
+                                </div>
+                                <a href="/dashboard/articles/<%= article.id %>/edit" 
+                                   class="text-primary hover:text-accent">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        <% }) %>
+                    </div>
+                </section>
+
+                <!-- Tâches récentes -->
+                <section class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-text">Tâches récentes</h2>
+                        <a href="/dashboard/tasks" class="text-primary hover:text-accent transition-colors">
+                            Voir tout →
+                        </a>
+                    </div>
+                    <div class="space-y-4">
+                        <% recentTasks.forEach(task => { %>
+                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors">
+                                <div>
+                                    <h3 class="font-medium text-text"><%= task.title %></h3>
+                                    <p class="text-sm text-gray-500">
+                                        Échéance : <%= new Date(task.dueDate).toLocaleDateString('fr-FR') %>
+                                    </p>
+                                </div>
+                                <span class="px-2 py-1 text-xs rounded-full
+                                    <%= task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-green-100 text-green-800' %>">
+                                    <%= task.priority %>
+                                </span>
+                            </div>
+                        <% }) %>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- contentFor('extraStyles') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<%- contentFor('extraScripts') %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestionnaire pour les boutons de suppression
+    document.querySelectorAll('.btn-delete').forEach(button => {
+        button.addEventListener('click', async function() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
+                const id = this.dataset.id;
+                const type = this.closest('.article-item') ? 'articles' : 'tasks';
+                try {
+                    const response = await fetch(`/dashboard/${type}/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        this.closest('.article-item, .task-item').remove();
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la suppression:', error);
+                }
+            }
+        });
+    });
+});
+</script> 

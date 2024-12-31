@@ -1,0 +1,172 @@
+<%- contentFor('body') %>
+
+<main>
+  <!-- Hero Section -->
+  <section class="relative h-screen flex items-center overflow-hidden">
+    <!-- Image de fond avec un overlay plus sombre -->
+    <div class="absolute inset-0">
+      <img
+        src="/img/erdkinder.png"
+        alt="ErdKinder"
+        class="absolute w-full h-full object-cover"
+        onerror="console.error('Erreur de chargement de l\'image:', this.src); this.style.display='none';"
+        onload="console.log('Image chargée avec succès');"
+      />
+      <div class="absolute inset-0 bg-black/60"></div>
+      <!-- Augmentation de l'opacité -->
+    </div>
+
+    <!-- Contenu -->
+    <div
+      class="container mx-auto px-4 relative z-10 flex items-center justify-center min-h-screen"
+    >
+      <div class="max-w-3xl text-white text-center">
+        <h1
+          class="text-5xl md:text-6xl font-bold mb-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]"
+        >
+          La Maison des Enfants
+        </h1>
+        <p
+          class="text-xl md:text-2xl mb-8 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]"
+        >
+          Un projet éducatif innovant basé sur la pédagogie Montessori pour les
+          adolescents
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/actualites"
+            class="bg-primary hover:bg-accent text-white px-8 py-4 rounded-lg transition-colors text-center text-lg font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.3)] w-full sm:w-auto min-w-[200px]"
+          >
+            Découvrir le projet
+          </a>
+          <a
+            href="/avancement"
+            class="bg-white hover:bg-gray-100 text-primary hover:text-accent px-8 py-4 rounded-lg transition-all text-center text-lg font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.3)] w-full sm:w-auto min-w-[200px]"
+          >
+            Suivre l'avancement
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dernières actualités -->
+  <section class="py-16">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-text mb-8 text-center">
+        Dernières Actualités
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <%- include('partials/articles-list', { articles: articles }) %>
+      </div>
+      <div class="text-center mt-8">
+        <a href="/actualites" class="btn-primary">
+          Voir toutes les actualités
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notre Approche -->
+  <section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-text mb-12 text-center">Notre Approche</h2>
+
+      <!-- Introduction -->
+      <div class="max-w-4xl mx-auto mb-16">
+        <div class="text-center mb-12">
+          <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-school text-3xl text-white"></i>
+          </div>
+          <p class="text-lg text-gray-700">
+            Depuis plus de 20 ans, l'association <em>La Maison des Enfants</em> porte les valeurs de la pédagogie Montessori 
+            en dirigeant <a href="https://www.ecolemontessori-avignon.org" class="text-primary hover:text-accent">
+            l'École Montessori d'Avignon</a>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Points clés -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+        <!-- Vision -->
+        <div class="text-center">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-lightbulb text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4">Notre Vision</h3>
+          <p class="text-gray-600">
+            Création d'un <strong>collège et lycée Montessori</strong>, offrant une continuité pédagogique 
+            et accueillant les enfants en quête d'un apprentissage respectueux.
+          </p>
+        </div>
+
+        <!-- Approche Erdkinder -->
+        <div class="text-center">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-seedling text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4">L'Approche Erdkinder</h3>
+          <p class="text-gray-600">
+            Inspiré du <a href="#" class="text-primary hover:text-accent">troisième plan de développement</a>, 
+            notre projet Erdkinder crée un environnement unique adapté aux besoins des adolescents.
+          </p>
+        </div>
+
+        <!-- Pédagogie -->
+        <div class="text-center">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-hands-holding text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-4">Notre Pédagogie</h3>
+          <p class="text-gray-600">
+            L'autonomie, la responsabilité et l'apprentissage par l'expérience sont au cœur 
+            de notre approche éducative.
+          </p>
+        </div>
+      </div>
+
+      <!-- Appel à l'action -->
+      <div class="text-center mt-16">
+        <div class=" flex items-center justify-center mx-auto mb-6">
+        
+        </div>
+        <p class="text-xl font-semibold text-text">
+          Ensemble, construisons un lieu d'éducation innovant et profondément humain, dédié aux adolescents !
+        </p>
+      </div>
+
+      <!-- Caractéristiques -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+        <div class="text-center p-6">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-brain text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Pédagogie Montessori</h3>
+          <p class="text-gray-600">
+            Une approche qui respecte le rythme et les besoins de chaque adolescent.
+          </p>
+        </div>
+
+        <div class="text-center p-6">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-users text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Petits Effectifs</h3>
+          <p class="text-gray-600">
+            Des groupes réduits pour un accompagnement personnalisé.
+          </p>
+        </div>
+
+        <div class="text-center p-6">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-balance-scale text-2xl text-white"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Développement Global</h3>
+          <p class="text-gray-600">
+            Un équilibre entre apprentissages académiques et développement personnel.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

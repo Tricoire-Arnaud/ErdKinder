@@ -1,0 +1,36 @@
+<%- contentFor('body') %>
+
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-4xl font-bold text-text mb-8">Avancement du Projet</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Section Étapes -->
+    <section class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold text-text mb-4">Étapes du Projet</h2>
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <div
+            class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white"
+          >
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="font-semibold">Phase 1: Conception</h3>
+            <p class="text-gray-600">Planification et design du projet</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section Statistiques -->
+    <section class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold text-text mb-4">Statistiques</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-3xl font-bold text-primary">80%</div>
+          <div class="text-sm text-gray-600">Avancement Global</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

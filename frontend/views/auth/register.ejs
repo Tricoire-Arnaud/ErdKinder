@@ -1,0 +1,29 @@
+<%- contentFor('body') %>
+
+<section class="auth-section">
+    <div class="auth-container">
+        <h1>Inscription</h1>
+        <form class="auth-form" action="/auth/register" method="POST">
+            <div class="form-group">
+                <label for="name">Nom complet</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmer le mot de passe</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn-primary">S'inscrire</button>
+        </form>
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error-message"><%= error %></div>
+        <% } %>
+    </div>
+</section> 

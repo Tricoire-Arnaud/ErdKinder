@@ -1,0 +1,64 @@
+<aside class="w-64 bg-white min-h-screen shadow-lg">
+    <div class="p-6 border-b">
+        <div class="flex items-center gap-3">
+            <span class="font-bold text-primary">Administration</span>
+        </div>
+    </div>
+    
+    <nav class="p-4">
+        <ul class="space-y-2">
+            <li>
+                <a href="/dashboard" 
+                   class="flex items-center gap-3 p-3 rounded-lg transition-colors
+                          <%= currentSection === 'overview' ? 
+                              'bg-primary text-white' : 
+                              'text-text hover:bg-primary/10' %>">
+                    <i class="fas fa-home w-5"></i>
+                    Vue d'ensemble
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/articles" 
+                   class="flex items-center gap-3 p-3 rounded-lg transition-colors
+                          <%= currentSection === 'articles' ? 
+                              'bg-primary text-white' : 
+                              'text-text hover:bg-primary/10' %>">
+                    <i class="fas fa-newspaper w-5"></i>
+                    Articles
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/groups" 
+                   class="flex items-center gap-3 p-3 rounded-lg transition-colors
+                          <%= currentSection === 'groups' ? 
+                              'bg-primary text-white' : 
+                              'text-text hover:bg-primary/10' %>">
+                    <i class="fas fa-users w-5"></i>
+                    Groupes
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/tasks/global" 
+                   class="flex items-center gap-3 p-3 rounded-lg transition-colors
+                          <%= currentSection === 'tasks' ? 
+                              'bg-primary text-white' : 
+                              'text-text hover:bg-primary/10' %>">
+                    <i class="fas fa-tasks w-5"></i>
+                    Tâches
+                </a>
+            </li>
+            <% if (user.role === 'admin') { %>
+                <li>
+                    <a href="/dashboard/users" 
+                       class="flex items-center gap-3 p-3 rounded-lg transition-colors
+                              <%= currentSection === 'users' ? 
+                                  'bg-primary text-white' : 
+                                  'text-text hover:bg-primary/10' %>">
+                        <i class="fas fa-user-cog w-5"></i>
+                        Utilisateurs
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</aside> 
